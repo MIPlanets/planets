@@ -32,10 +32,10 @@ Examples:
 """
 
 import argparse
-import sys
-import re
 import csv
 import io
+import re
+import sys
 from pathlib import Path
 import yaml
 

@@ -46,15 +46,15 @@ For setup instructions, see:
 """
 
 import argparse
-import os
-import sys
-import subprocess
-import time
+import csv
 import glob
 import io
-from pathlib import Path
-import csv
+import os
+import subprocess
+import sys
+import time
 import yaml
+from pathlib import Path
 
 # Add parent directory to path for importing ECMWF modules
 SCRIPT_DIR = Path(__file__).parent
