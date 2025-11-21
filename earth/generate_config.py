@@ -46,22 +46,32 @@ def load_locations(locations_file):
         # Skip comment lines
         lines = [line for line in f if not line.strip().startswith('#')]
         
-    # Parse CSV from non-comment lines (tab-delimited)
+    # Parse CSV from non-comment lines (comma-delimited)
     import io
     csv_data = io.StringIO(''.join(lines))
-    reader = csv.DictReader(csv_data, delimiter='\t', skipinitialspace=True)
+    reader = csv.DictReader(csv_data, delimiter=',', skipinitialspace=True)
     
     for row in reader:
-        # Parse polygon vertices
-        vertices_str = row['polygon_vertices']
-        coords = vertices_str.split(';')
-        polygon = []
-        for coord in coords:
-            lon, lat = coord.split(',')
-            polygon.append([float(lon), float(lat)])
+        # Extract bounding box coordinates
+        latmin = float(row['Latmin'])
+        latmax = float(row['Latmax'])
+        lonmin = float(row['Lonmin'])
+        lonmax = float(row['Lonmax'])
         
-        locations[row['location_id']] = {
-            'name': row['name'],
+        # Create polygon from bounding box (counterclockwise rectangle)
+        polygon = [
+            [lonmin, latmin],  # SW corner
+            [lonmin, latmax],  # NW corner
+            [lonmax, latmax],  # NE corner
+            [lonmax, latmin],  # SE corner
+        ]
+        
+        # Use Name field as location_id and Description as the display name
+        location_id = row['Name']
+        name = row['Description']
+        
+        locations[location_id] = {
+            'name': name,
             'polygon': polygon
         }
     
