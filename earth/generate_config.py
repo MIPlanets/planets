@@ -35,6 +35,7 @@ import argparse
 import sys
 import re
 import csv
+import io
 from pathlib import Path
 import yaml
 
@@ -47,7 +48,6 @@ def load_locations(locations_file):
         lines = [line for line in f if not line.strip().startswith('#')]
         
     # Parse CSV from non-comment lines (comma-delimited)
-    import io
     csv_data = io.StringIO(''.join(lines))
     reader = csv.DictReader(csv_data, delimiter=',', skipinitialspace=True)
     
