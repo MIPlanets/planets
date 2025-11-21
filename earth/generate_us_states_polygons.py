@@ -24,45 +24,13 @@ def location_id_from_name(name):
     return name.lower().replace(' ', '-')
 
 
-def format_polygon_vertices(polygon):
-    """Format polygon vertices for CSV."""
-    return ';'.join([f"{lon},{lat}" for lon, lat in polygon])
-
-
-def simplify_polygon(coordinates, target_vertices=50):
-    """
-    Simplify a polygon using even sampling.
-    
-    For polygons with more vertices than the target, sample evenly spaced
-    points to reduce vertex count while maintaining shape.
-    
-    Args:
-        coordinates: List of [lon, lat] pairs
-        target_vertices: Maximum number of points to keep
-    
-    Returns:
-        List of [lon, lat] pairs (simplified)
-    """
-    if len(coordinates) <= target_vertices:
-        return coordinates
-    
-    # Sample evenly spaced points
-    step = len(coordinates) / target_vertices
-    simplified = []
-    for i in range(target_vertices):
-        idx = int(i * step)
-        simplified.append(coordinates[idx])
-    
-    return simplified
-
-
 def process_geojson(output_file, max_vertices=50):
     """
-    Download GeoJSON and create CSV with actual polygon boundaries.
+    Download GeoJSON and create CSV with bounding boxes for each state.
     
     Args:
         output_file: Path to output CSV file
-        max_vertices: Maximum vertices per state polygon
+        max_vertices: Unused parameter (kept for backward compatibility)
     """
     
     # Download US states GeoJSON
