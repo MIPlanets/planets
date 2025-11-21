@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """
-Generate US states location table with actual polygon boundaries.
+Generate US states location table with bounding boxes.
 
 This script downloads GeoJSON data for US states and converts it to the
-locations.csv format, preserving the actual state boundaries (not just
-bounding boxes).
+locations.csv format, calculating bounding boxes from the state boundaries.
 
 Usage:
-    python generate_us_states_polygons.py [--output OUTPUT_FILE] [--max-vertices N]
+    python generate_us_states_polygons.py [--output OUTPUT_FILE]
 
 Options:
     --output FILE         Output CSV file path (default: us_states.csv)
-    --max-vertices N      Maximum vertices per polygon (default: 50)
+    --max-vertices N      Unused (kept for backward compatibility)
 """
 
 import json
@@ -92,7 +91,7 @@ def process_geojson(output_file, max_vertices=50):
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Generate US states location table with actual polygon boundaries",
+        description="Generate US states location table with bounding boxes",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__
     )
@@ -107,7 +106,7 @@ def main():
         '--max-vertices',
         type=int,
         default=50,
-        help="Maximum vertices per polygon (default: 50)"
+        help="Unused parameter (kept for backward compatibility)"
     )
     
     args = parser.parse_args()

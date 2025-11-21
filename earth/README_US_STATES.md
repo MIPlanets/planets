@@ -129,20 +129,23 @@ python plot_us_states_simple.py --states texas florida california --output three
 The generated `us_states.csv` file follows this format:
 
 ```
-location_id	name	polygon_vertices
-california	California	-123.23,42.01;-121.04,42.00;-120.00,40.26;...
+Name,Description,Latmin,Latmax,Lonmin,Lonmax
+california,California,32.53,42.01,-124.48,-114.13
 ```
 
 Where:
-- **location_id**: State identifier (lowercase with hyphens)
-- **name**: Full state name
-- **polygon_vertices**: Semicolon-separated lon,lat pairs representing the state boundary
+- **Name**: State identifier (lowercase with hyphens)
+- **Description**: Full state name
+- **Latmin**: Minimum latitude of bounding box
+- **Latmax**: Maximum latitude of bounding box
+- **Lonmin**: Minimum longitude of bounding box
+- **Lonmax**: Maximum longitude of bounding box
 
-The existing scripts (`generate_config.py`, `download_location_data.py`) automatically calculate rectangular simulation bounds from these polygons.
+The existing scripts (`generate_config.py`, `prepare_initial_condition.py`) automatically calculate rectangular simulation bounds and center points from these bounding boxes.
 
 ## Notes
 
-- State boundaries are simplified from the original GeoJSON to keep the CSV file manageable
+- Bounding boxes are calculated from the original state boundary polygons
 - Alaska uses extended western longitude (around -189° to -130°) for consistency across the International Date Line
 - All longitude/latitude values follow standard conventions:
   - Longitude: negative for West, positive for East
