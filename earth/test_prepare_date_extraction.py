@@ -21,7 +21,7 @@ class TestPrepareInitialConditionDateExtraction(unittest.TestCase):
         """
         Helper method that implements the exact date extraction logic from prepare_initial_condition.py.
         
-        This is the code from lines 398-412 of prepare_initial_condition.py.
+        This is the code from lines 406-412 of prepare_initial_condition.py.
         """
         # check end-date key in config/integration
         if 'integration' not in config_data:
