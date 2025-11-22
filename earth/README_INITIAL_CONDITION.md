@@ -65,24 +65,26 @@ python prepare_initial_condition.py white-sands --stop-after 2
 
 ## Location Table Format
 
-The `locations.csv` file is a tab-delimited file with minimal information:
+The `locations.csv` file is a comma-delimited file with bounding box information:
 
 ```
-location_id	name	polygon_vertices
-ann-arbor	Ann Arbor Michigan	-84.25,41.75;-84.25,42.85;-83.15,42.85;-83.15,41.75
-white-sands	White Sands New Mexico	-107.2,32.1;-107.2,34.1;-105.7,34.1;-105.7,32.1
+Name,Description,Latmin,Latmax,Lonmin,Lonmax
+ann-arbor,Ann Arbor Michigan,41.75,42.85,-84.25,-83.15
+white-sands,White Sands New Mexico,32.1,34.1,-107.2,-105.7
 ```
 
 Fields:
-- **location_id**: Unique identifier (letters, numbers, dashes, underscores only)
-- **name**: Human-readable name
-- **polygon_vertices**: Semicolon-separated list of lon,lat coordinate pairs defining geographic bounds
+- **Name**: Unique identifier (letters, numbers, dashes, underscores only)
+- **Description**: Human-readable description/name
+- **Latmin**: Minimum latitude of bounding box
+- **Latmax**: Maximum latitude of bounding box
+- **Lonmin**: Minimum longitude of bounding box (negative for West, positive for East)
+- **Lonmax**: Maximum longitude of bounding box (negative for West, positive for East)
 
 Notes:
-- Center point is calculated automatically from polygon vertices
-- Horizontal domain extents (x2, x3) are calculated automatically from polygon bounds
-- Simulated rectangular domain encompasses the polygon bounds
-- Polygon vertices should be in counterclockwise order
+- Center point is calculated automatically from bounding box
+- Horizontal domain extents (x2, x3) are calculated automatically from bounding box
+- Simulated rectangular domain uses the specified bounding box
 
 ### US States Database
 

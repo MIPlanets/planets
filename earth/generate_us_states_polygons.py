@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """
-Generate US states location table with actual polygon boundaries.
+Generate US states location table with bounding boxes.
 
 This script downloads GeoJSON data for US states and converts it to the
-locations.csv format, preserving the actual state boundaries (not just
-bounding boxes).
+locations.csv format, calculating bounding boxes from the state boundaries.
 
 Usage:
-    python generate_us_states_polygons.py [--output OUTPUT_FILE] [--max-vertices N]
+    python generate_us_states_polygons.py [--output OUTPUT_FILE]
 
 Options:
     --output FILE         Output CSV file path (default: us_states.csv)
-    --max-vertices N      Maximum vertices per polygon (default: 50)
+    --max-vertices N      Unused (kept for backward compatibility)
 """
 
 import json
@@ -24,45 +23,13 @@ def location_id_from_name(name):
     return name.lower().replace(' ', '-')
 
 
-def format_polygon_vertices(polygon):
-    """Format polygon vertices for CSV."""
-    return ';'.join([f"{lon},{lat}" for lon, lat in polygon])
-
-
-def simplify_polygon(coordinates, target_vertices=50):
-    """
-    Simplify a polygon using even sampling.
-    
-    For polygons with more vertices than the target, sample evenly spaced
-    points to reduce vertex count while maintaining shape.
-    
-    Args:
-        coordinates: List of [lon, lat] pairs
-        target_vertices: Maximum number of points to keep
-    
-    Returns:
-        List of [lon, lat] pairs (simplified)
-    """
-    if len(coordinates) <= target_vertices:
-        return coordinates
-    
-    # Sample evenly spaced points
-    step = len(coordinates) / target_vertices
-    simplified = []
-    for i in range(target_vertices):
-        idx = int(i * step)
-        simplified.append(coordinates[idx])
-    
-    return simplified
-
-
 def process_geojson(output_file, max_vertices=50):
     """
-    Download GeoJSON and create CSV with actual polygon boundaries.
+    Download GeoJSON and create CSV with bounding boxes for each state.
     
     Args:
         output_file: Path to output CSV file
-        max_vertices: Maximum vertices per state polygon
+        max_vertices: Unused parameter (kept for backward compatibility)
     """
     
     # Download US states GeoJSON
@@ -82,16 +49,10 @@ def process_geojson(output_file, max_vertices=50):
     with open(output_file, 'w') as f:
         # Write comments explaining the format
         f.write("# US States Location Table\n")
-        f.write("# Format: location_id\tname\tpolygon_vertices\n")
-        f.write("# polygon_vertices format: lon1,lat1;lon2,lat2;lon3,lat3;...\n")
-        f.write(f"# Vertices represent actual state boundaries (simplified to up to {max_vertices} vertices per state)\n")
-        f.write("# Vertices are in counterclockwise order\n")
+        f.write("# Format: Name,Description,Latmin,Latmax,Lonmin,Lonmax\n")
         f.write("# Longitude: negative for West, positive for East\n")
         f.write("# Latitude: negative for South, positive for North\n")
-        f.write("# Note: Alaska uses extended western longitude (around -189° to -130°) for consistency\n")
-        f.write("#       across the International Date Line. Scripts calculate rectangular\n")
-        f.write("#       bounds from these polygons automatically.\n")
-        f.write("location_id\tname\tpolygon_vertices\n")
+        f.write("Name,Description,Latmin,Latmax,Lonmin,Lonmax\n")
         
         # Process each state
         for feature in data['features']:
@@ -110,17 +71,18 @@ def process_geojson(output_file, max_vertices=50):
                 largest = max(geometry['coordinates'], key=lambda p: len(p[0]))
                 coordinates = largest[0]
             
-            # Simplify if too many vertices
-            if len(coordinates) > max_vertices:
-                coordinates = simplify_polygon(coordinates, target_vertices=max_vertices)
+            # Calculate bounding box from polygon
+            lons = [coord[0] for coord in coordinates]
+            lats = [coord[1] for coord in coordinates]
+            latmin = min(lats)
+            latmax = max(lats)
+            lonmin = min(lons)
+            lonmax = max(lons)
             
-            # Format vertices
-            vertices_str = format_polygon_vertices(coordinates)
+            # Write the row: Name (location_id), Description (full name), bounds
+            f.write(f"{location_id},{name},{latmin},{latmax},{lonmin},{lonmax}\n")
             
-            # Write the row
-            f.write(f"{location_id}\t{name}\t{vertices_str}\n")
-            
-            print(f"  {name}: {len(coordinates)} vertices")
+            print(f"  {name}: bounds [{latmin:.2f}, {latmax:.2f}] x [{lonmin:.2f}, {lonmax:.2f}]")
     
     print(f"\nOutput written to: {output_file}")
     return 0
@@ -129,7 +91,7 @@ def process_geojson(output_file, max_vertices=50):
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Generate US states location table with actual polygon boundaries",
+        description="Generate US states location table with bounding boxes",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__
     )
@@ -144,7 +106,7 @@ def main():
         '--max-vertices',
         type=int,
         default=50,
-        help="Maximum vertices per polygon (default: 50)"
+        help="Unused parameter (kept for backward compatibility)"
     )
     
     args = parser.parse_args()
