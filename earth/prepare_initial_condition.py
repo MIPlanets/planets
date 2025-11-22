@@ -403,7 +403,13 @@ def main():
         if 'end-date' not in config_data['integration']:
             raise KeyError("Missing 'end-date' key in 'integration' section of config file")
         # datetime.date YYYY-MM-DD to YYYYMMDD
-        end_date = config_data['integration'].get('end-date').strftime('%Y%m%d')
+        end_date_value = config_data['integration'].get('end-date')
+        # Convert to string if YAML parsed it as a date object
+        if hasattr(end_date_value, 'strftime'):
+            end_date = end_date_value.strftime('%Y%m%d')
+        else:
+            # It's already a string, convert YYYY-MM-DD to YYYYMMDD
+            end_date = str(end_date_value).replace('-', '')
     
     print("="*70)
     print(f"{location_name} Weather Data Pipeline")
