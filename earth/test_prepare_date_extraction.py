@@ -16,6 +16,28 @@ from datetime import date
 class TestPrepareInitialConditionDateExtraction(unittest.TestCase):
     """Test date extraction as done in prepare_initial_condition.py."""
     
+    @staticmethod
+    def extract_and_convert_date(config_data):
+        """
+        Helper method that implements the exact date extraction logic from prepare_initial_condition.py.
+        
+        This is the code from lines 398-412 of prepare_initial_condition.py.
+        """
+        # check end-date key in config/integration
+        if 'integration' not in config_data:
+            raise KeyError("Missing 'integration' section in config file")
+        if 'end-date' not in config_data['integration']:
+            raise KeyError("Missing 'end-date' key in 'integration' section of config file")
+        # datetime.date YYYY-MM-DD to YYYYMMDD
+        end_date_value = config_data['integration'].get('end-date')
+        # Convert to string if YAML parsed it as a date object
+        if hasattr(end_date_value, 'strftime'):
+            end_date = end_date_value.strftime('%Y%m%d')
+        else:
+            # It's already a string, convert YYYY-MM-DD to YYYYMMDD
+            end_date = str(end_date_value).replace('-', '')
+        return end_date
+    
     def create_test_config(self, end_date_value, quote_date=False):
         """Helper to create a test YAML config with integration section."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
@@ -39,22 +61,10 @@ class TestPrepareInitialConditionDateExtraction(unittest.TestCase):
         yaml_file = self.create_test_config(date(2024, 10, 1))
         
         try:
-            # This is the exact code from prepare_initial_condition.py (lines 398-412)
+            # Load and extract date using helper method
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
-                # check end-date key in config/integration
-                if 'integration' not in config_data:
-                    raise KeyError("Missing 'integration' section in config file")
-                if 'end-date' not in config_data['integration']:
-                    raise KeyError("Missing 'end-date' key in 'integration' section of config file")
-                # datetime.date YYYY-MM-DD to YYYYMMDD
-                end_date_value = config_data['integration'].get('end-date')
-                # Convert to string if YAML parsed it as a date object
-                if hasattr(end_date_value, 'strftime'):
-                    end_date = end_date_value.strftime('%Y%m%d')
-                else:
-                    # It's already a string, convert YYYY-MM-DD to YYYYMMDD
-                    end_date = str(end_date_value).replace('-', '')
+                end_date = self.extract_and_convert_date(config_data)
             
             self.assertEqual(end_date, '20241001')
         finally:
@@ -66,22 +76,10 @@ class TestPrepareInitialConditionDateExtraction(unittest.TestCase):
         yaml_file = self.create_test_config('2024-10-02', quote_date=True)
         
         try:
-            # This is the exact code from prepare_initial_condition.py (lines 398-412)
+            # Load and extract date using helper method
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
-                # check end-date key in config/integration
-                if 'integration' not in config_data:
-                    raise KeyError("Missing 'integration' section in config file")
-                if 'end-date' not in config_data['integration']:
-                    raise KeyError("Missing 'end-date' key in 'integration' section of config file")
-                # datetime.date YYYY-MM-DD to YYYYMMDD
-                end_date_value = config_data['integration'].get('end-date')
-                # Convert to string if YAML parsed it as a date object
-                if hasattr(end_date_value, 'strftime'):
-                    end_date = end_date_value.strftime('%Y%m%d')
-                else:
-                    # It's already a string, convert YYYY-MM-DD to YYYYMMDD
-                    end_date = str(end_date_value).replace('-', '')
+                end_date = self.extract_and_convert_date(config_data)
             
             self.assertEqual(end_date, '20241002')
         finally:
@@ -96,22 +94,10 @@ class TestPrepareInitialConditionDateExtraction(unittest.TestCase):
             yaml_file = f.name
         
         try:
-            # This is the exact code from prepare_initial_condition.py (lines 398-412)
+            # Load and extract date using helper method
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
-                # check end-date key in config/integration
-                if 'integration' not in config_data:
-                    raise KeyError("Missing 'integration' section in config file")
-                if 'end-date' not in config_data['integration']:
-                    raise KeyError("Missing 'end-date' key in 'integration' section of config file")
-                # datetime.date YYYY-MM-DD to YYYYMMDD
-                end_date_value = config_data['integration'].get('end-date')
-                # Convert to string if YAML parsed it as a date object
-                if hasattr(end_date_value, 'strftime'):
-                    end_date = end_date_value.strftime('%Y%m%d')
-                else:
-                    # It's already a string, convert YYYY-MM-DD to YYYYMMDD
-                    end_date = str(end_date_value).replace('-', '')
+                end_date = self.extract_and_convert_date(config_data)
             
             self.assertEqual(end_date, '20241015')
         finally:
@@ -127,8 +113,7 @@ class TestPrepareInitialConditionDateExtraction(unittest.TestCase):
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
                 with self.assertRaises(KeyError) as context:
-                    if 'integration' not in config_data:
-                        raise KeyError("Missing 'integration' section in config file")
+                    self.extract_and_convert_date(config_data)
                 
                 self.assertIn("integration", str(context.exception))
         finally:
@@ -144,10 +129,7 @@ class TestPrepareInitialConditionDateExtraction(unittest.TestCase):
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
                 with self.assertRaises(KeyError) as context:
-                    if 'integration' not in config_data:
-                        raise KeyError("Missing 'integration' section in config file")
-                    if 'end-date' not in config_data['integration']:
-                        raise KeyError("Missing 'end-date' key in 'integration' section of config file")
+                    self.extract_and_convert_date(config_data)
                 
                 self.assertIn("end-date", str(context.exception))
         finally:

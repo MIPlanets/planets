@@ -15,6 +15,14 @@ from datetime import date
 class TestDateHandling(unittest.TestCase):
     """Test date extraction from YAML configuration."""
     
+    @staticmethod
+    def convert_date_value(end_date_value):
+        """Helper method to convert date value to YYYYMMDD format."""
+        if hasattr(end_date_value, 'strftime'):
+            return end_date_value.strftime('%Y%m%d')
+        else:
+            return str(end_date_value).replace('-', '')
+    
     def test_date_as_datetime_object(self):
         """Test handling of date parsed as datetime.date object by YAML."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
@@ -31,14 +39,7 @@ class TestDateHandling(unittest.TestCase):
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
                 end_date_value = config_data['integration'].get('end-date')
-                
-                # Convert to string if YAML parsed it as a date object
-                if hasattr(end_date_value, 'strftime'):
-                    end_date = end_date_value.strftime('%Y%m%d')
-                else:
-                    # It's already a string, convert YYYY-MM-DD to YYYYMMDD
-                    end_date = str(end_date_value).replace('-', '')
-                
+                end_date = self.convert_date_value(end_date_value)
                 self.assertEqual(end_date, '20241001')
         finally:
             Path(yaml_file).unlink()
@@ -56,14 +57,7 @@ class TestDateHandling(unittest.TestCase):
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
                 end_date_value = config_data['integration'].get('end-date')
-                
-                # Convert to string if YAML parsed it as a date object
-                if hasattr(end_date_value, 'strftime'):
-                    end_date = end_date_value.strftime('%Y%m%d')
-                else:
-                    # It's already a string, convert YYYY-MM-DD to YYYYMMDD
-                    end_date = str(end_date_value).replace('-', '')
-                
+                end_date = self.convert_date_value(end_date_value)
                 self.assertEqual(end_date, '20241002')
         finally:
             Path(yaml_file).unlink()
@@ -81,14 +75,7 @@ class TestDateHandling(unittest.TestCase):
             with open(yaml_file, 'r') as f:
                 config_data = yaml.safe_load(f)
                 end_date_value = config_data['integration'].get('end-date')
-                
-                # Convert to string if YAML parsed it as a date object
-                if hasattr(end_date_value, 'strftime'):
-                    end_date = end_date_value.strftime('%Y%m%d')
-                else:
-                    # It's already a string, convert YYYY-MM-DD to YYYYMMDD
-                    end_date = str(end_date_value).replace('-', '')
-                
+                end_date = self.convert_date_value(end_date_value)
                 self.assertEqual(end_date, '20241015')
         finally:
             Path(yaml_file).unlink()
